@@ -69,3 +69,109 @@ At this stage, everything should be in place... But you have now way to test it 
 - Buttons to switch scene, add entity...
 
 **hint** : We are using ImGui to draw those debug.
+
+## Threshold 2
+
+At this stage, we have invisible entites inside a scene. The next step is logically to draw a texture at the right location. But to do so, we have to load the texture (and its metadata) first. That is the purpose of this threshold.
+
+## Step 0
+
+A `TextureMgr` file has been added to the solution and contains the signature of its core features. First, add everything needed to be able to instantiate this manager and add an instance in `Gloabals.h` as you did for the others managers.
+
+### Step 1
+
+Our engine will only load textures with metadata (same path qnd same filename but using a `xml` extension). Those metadata contains every information about the content of the texture. For instance, a texture file could contain lots of different textures in the same file (which is often the case in 2D engine) or the different sprites of an animation... Parsing the `xml` file will allow us to know those information. This also allows us to be data driven. Indeed, artists, designers... can change the texture, the animations... without having to recompile our engine (which is a good habits). Our metadata file will look like 
+```xml
+<Animations>
+    <Animation Name="Head_Down">
+        <X>0</X>
+        <Y>0</Y>
+        <SizeX>28</SizeX>
+        <SizeY>25</SizeY>
+        <OffsetX>12</OffsetX>
+        <OffsetY>0</OffsetY>
+        <SpriteNum>1</SpriteNum>
+        <SpritesOnLine>2</SpritesOnLine>
+        <Reverted>0</Reverted>
+    </Animation>
+    <Animation Name="Head_Down">
+        <!-- ... -->
+    </Animation>
+    <!-- ... -->
+</Animations>
+```
+or 
+```xml
+<Backgrounds>
+    <Tile Name="Corner_Top_Left">
+        <X>0</X>
+        <Y>0</Y>
+        <SizeX>52</SizeX>
+        <SizeY>52</SizeY>
+        <RevertedX>0</RevertedX>
+        <RevertedY>0</RevertedY>
+    </Tile>
+    <Tile Name="Corner_Top_Right">
+        <!-- ... -->
+    </Tile>
+    <!-- ... -->
+</Backgrounds>
+```
+To parse the `xml` file, `rapidxml`  is part of the project and can be used by including 
+```cpp
+// The main include
+#include <rapidxml/rapidxml.hpp>
+
+// Might be helpful
+#include <rapidxml/rapidxml_utils.hpp>
+```
+
+All those information will be stored in a `TextureData` structure.
+
+The are two methods that you must implement. Keep in mind that it is not because there is only two methods that you cannot create others.
+```cpp
+	/*
+	 * Loads the texture using the given path, including its metadata.
+	 * Obviously, this function will also store the loaded data
+	 * If errors occur during the loading process, this function must return false.
+	 * Return true otherwise.
+	*/
+	bool LoadTexture(const std::filesystem::path& path);
+
+    /*
+    * Returns the corresponding TextureData using the name of the texture. Returns the default TextureData in case of an unknown name
+    */
+    const sTextureData& GetTextureData(const std::string& name) const;
+```
+
+Here are some hints:
+- Don't forget to log every error, warning or information. It will help you later
+- Split your `LoadTexture` code into several small functions (a function, a task). It will help you to read/understand your code.
+- Start by checking if you can load the texture. Does the file exist? Does the metadata file exist?...
+- Loading a file into a SFML texture is easy and documented. Check SFML documentation
+- Here is the [doc of rapidxml](https://rapidxml.sourceforge.net/manual.html).
+- Use the content of `rapidxml/rapidxml_utils.hpp` to open the file (way simpler that using fopen)
+- The lists of types that you should use:
+  * rapidxml::file<> 
+  * rapidxml::xml_document 
+  * rapidxml::xml_node<> 
+  * rapidxml::xml_attribute<>
+- The list of functions that you should use:
+  * parse<0> 
+  * first_node 
+  * first_attribute 
+  * value 
+  * value_size
+  * next_sibling
+
+### Step 2
+
+It my be a good idea to create a default texture that can be used if the required one does not exist. Create a dedicated `TextureData` to this default texture that we will be returned by `GetTextureData` in case of a wrong name.
+
+### Step 3
+
+As we did in the previous threshold, we will need a way to visualize what it is loaded. To do so, let's create a debug window dedicated to the `TextureMgr`
+
+Here are useful information that we want to visualize:
+- The actual texture (check for SFML ImGui)
+- All information stored in `TextureData`
