@@ -8,8 +8,10 @@ The purpose of this project is to implement a tiny 2D engine using SFML to pract
 
 1. [Threshold 0](#threshold-0)
 2. [Threshold 1](#threshold-1)
-2. [Threshold 2](#threshold-2)
-2. [Threshold 3](#threshold-3)
+3. [Threshold 2](#threshold-2)
+4. [Threshold 3](#threshold-3)
+5. [Threshold 4](#threshold-4)
+6. [Threshold 5](#threshold-5)
 
 ### Resources
 
@@ -280,3 +282,53 @@ We now have a working ECS, it is time to use it (even if its components do nothi
 ### Step 5
 
 Add virtual method `DrawDebug` to your `IComponent` as well as a `GetName` method (which will returns the component name) to display our components inside the debug window. Those debugs shoudl allow you to visualize the data of your component and, if possible, modify them. For instance, it would be a good idea to modify the value of your transform component using the debug.
+
+## Threshold 5
+
+We finally have a way to add/get `IComponent`, add/get `IDrawable`, load textures and metadata. It is now time to implement the behavior of our `RenderComponent`, `Sprite` and `Rectangle` to draw and animate our shape at the right location. That is the purpose of this threshold.
+
+### Step 0
+
+Let's start with the easiest one : `Rectangle`. We need to add few methods to be able to right `StaticTileData` to draw.
+``` cpp
+bool SetTexture(const std::string& textureName);
+bool SetStaticTile(const std::string& staticTileName);
+bool SetTextureAndStaticTile(const std::string& textureName, const std::string& staticTileName);
+```
+
+Using those three functions, you should be able to retrieve the right `TextureData` and the right `StaticTileData` to use. Using the `StaticTileData`, you have the necessary information to draw the right rectangle inside the entire texture. Here is a small description about each member of the `StaticTileData` structure :
+- **StartX**, **StartY** : Coordinates of the top-left corner of the rectangle
+- **SizeX, SizeY**: Size of the rectangle
+- **IsRevertedX** : does the rectangle should be reverted using the X-axis
+- **IsRevertedY** : does the rectangle should be reverted using the Y-axis
+
+Because this is a static shape, you must update the rectangle only on changes our on start. Your update must be empty.
+
+### Step 1
+
+Remove every hard coded value from your `Entity`, `Scene` and `RenderComponent`. We will now use the regular flow of our engine. Update the main function (or a dedicated function) to add the following steps:
+- Load the right texture into the `TextureMgr`
+- Create a `Scene` through the `SceneMgr` and set is as active
+- Create `Entity` and add it to the active `Scene`
+- Add a `TransformComponent` to the `Entity`
+- Add a `RenderComponent` to the `Entity`
+- Add a `RectangleShape` to the `RenderComponent`
+- Set the right texture and static tile to the `RectangleShape`
+
+As this stage, this code should be sufficient to draw the right texture at the top left corner of the screen
+
+### Step 2
+
+The next step would be to move the `Rectangle` alongside the update of the `TransformComponent`. To do so, modify the `Update` function of your `RenderComponent` so that it update the `WorldPosition` of your `Drawable`. Futhermore, add the necessary to be able to add offset from the `TransformComponent` to the `IDrawable`.
+
+At this step, the `Rectangle` drawn at the top-left corner of the window should move accordingly to the `TransformComponent` update using the debug you have created last threshold.
+
+### Step 3
+
+It is now the time to impplement our `Sprite` component. Modify this class to be able to select the right `AnimationData` (as you did with the `RectangleShape` and the `StaticTileData`). Finally, update the `Update` function so it can draw and update the rectangle to draw inside the texture each frame.
+
+Modify the code you added in the main function to test the behavior of the `Sprite` class. The animation should be played automatically and loop.
+
+### Step 4
+
+Update the debugs you have created to reflect the real state of all your Threshold
