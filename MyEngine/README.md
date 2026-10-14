@@ -224,17 +224,17 @@ If the treshold 1 and threshold 3 have been done right, you should see the recta
 ## Threshold 4
 
 Our entities now have a `TransformComponent` and a `RenderComponent` as members directly in the `Entity` class. However, this is an approach we cannot use anymore. Indeed, if we create new components, we do not add them to every entity. We want this to be done dynamically.
-Furthermore, we want a way to retrieve any component from an entity so hat it can be used somewhere else (for instance, the `RenderComponent` will use the `TransformComponent` to determine where it should draw its `Drawable`). That is the purpose of this threshold.
+Furthermore, we want a way to retrieve any component from an entity so that it can be used somewhere else (for instance, the `RenderComponent` will use the `TransformComponent` to determine where to draw its `Drawable`). That is the purpose of this threshold.
 
 ### Step 0
 
-The first step of this threshold is to remove the instances of `TransformComponent` and `RenderComponent` in the `Entity` class and to replace by a container of `IComponent`. Then, update the `Entity` class to use this container wherever necessary (life cycle functions...).
+The first step of this threshold is to remove the instances of `TransformComponent` and `RenderComponent` from the `Entity` class and to replace them with a container of `IComponent`. Then, update the `Entity` class to use this container wherever necessary (life cycle functions...).
 
 There is no straightforward way to test your implementation, so follow the instructions above and move on to the next step.
 
 ### Step 1
 
-We now need functions to add and get our components. Let's create a function to add a `TransformComponent`, another one to add a `RenderComponent` and two functions to get those components such as
+We now need functions to add and get our components. Let's create a function to add a `TransformComponent`, another one to add a `RenderComponent` and two functions to retrieve those components such as
 ```cpp
 TransformComponent* AddTransformComponent();
 RenderComponent* AddRenderComponent();
@@ -245,13 +245,13 @@ RenderComponent* GetRenderComponent() const;
 
 Here are some instructions :
 - Only one `TransformComponent` can be added to an entity. The same applies for the `RenderComponent` or any other `IComponent`
-- Those functions returns the pointer to the component added or `nullptr` it is impossible. In that case, don't hesistate to add logs...
+- Those functions return a pointer to the component added or `nullptr` it is impossible. In that case, don't hesitate to add logs...
 
-It is working very well but it is not future-proof. Indeed, this approach implies to add (at least) two new functions eah time we will create a new `IComponent`, even if the implementation is the same except for the type. It would be great to have a single function to add components that could be used with every `IComponent`.
+It works very well but it is not future-proof. Indeed, this approach implies to add (at least) two new functions each time we create a new `IComponent`, even if the implementation is the same except for the type. It would be great to have a single function for adding components that could be used with every `IComponent`.
 
 ### Step 2
 
-In this step, we will create templated functions to replace the ones we have created during the previous step. Replace their declaration in the header file by :
+In this step, we will create templated functions to replace the ones we have created during the previous step. Replace their declarations in the header file with :
 ```cpp
 template <typename C>
 C* AddComponent();
@@ -266,8 +266,8 @@ C* GetComponent() const;
 
 **hints:**
 - As we discussed in class, templated functions cannot be implemented in cpp. You have to define them in the same header as their declaration. A good way to do it, is to create `hxx` files that will be included at the end of your `.h` which defines those functions.
-- You will have to check about the type of stored `IComponent` to avoid duplicate. To do so, take a look at `typeid` and `dynanic_cast`
-- To avoid having, awful errors in your console because of template, it is a good habit to use static checks with your template to ensure the given type will work with your implementation. For instance, in your case we want C to inherit from `IComponent`. This check can be made using `static_assert` and `std::is_base_of` (and the `requires` keyword in C++20).
+- You will have to check the type of stored `IComponent` to avoid duplicate. To do so, take a look at `typeid` and `dynamic_cast`
+- To avoid having, awful errors in your console because of templates, it is a good habit to use static checks with your template to ensure the given type will work with your implementation. For instance, in your case we want C to inherit from `IComponent`. This check can be made using `static_assert` and `std::is_base_of` (and the `requires` keyword in C++20).
 
 ### Step 3
 
