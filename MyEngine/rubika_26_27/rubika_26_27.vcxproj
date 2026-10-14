@@ -210,6 +210,7 @@
     <ClCompile Include="..\Dependencies\Imgui\imgui_widgets.cpp" />
     <ClCompile Include="DebugMgr.cpp" />
     <ClCompile Include="Globals.cpp" />
+    <ClCompile Include="IDrawable.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="TransformComponent.cpp" />
@@ -235,6 +236,8 @@
     <ClInclude Include="DebugMgr.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="Globals.h" />
+    <ClInclude Include="IComponent.h" />
+    <ClInclude Include="IDrawable.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="Profiler.h" />
     <ClInclude Include="Scene.h" />
